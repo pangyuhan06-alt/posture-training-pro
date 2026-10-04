@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#f7f7f5">
+<title>体态训练打卡 Pro</title>
+<style>
+*{box-sizing:border-box} body{margin:0;background:#f5f5f3;color:#202124;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","PingFang SC",sans-serif}
+.wrap{max-width:720px;margin:auto;padding:calc(18px + env(safe-area-inset-top)) 16px 36px}
+h1{font-size:28px;margin:4px 0 6px}.sub{color:#707070;font-size:14px;margin-bottom:18px}
+.card{background:#fff;border-radius:18px;padding:16px;margin:12px 0;box-shadow:0 2px 12px #00000008}
+h2{font-size:18px;margin:0 0 12px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+label{display:block;font-size:13px;color:#666;margin-bottom:5px}
+input,select,textarea,button{font:inherit} input,select,textarea{width:100%;border:1px solid #ddd;border-radius:11px;padding:10px;background:#fff}
+textarea{min-height:70px;resize:vertical}.row{display:flex;gap:8px;flex-wrap:wrap}
+button{border:0;border-radius:11px;padding:11px 14px;background:#222;color:#fff;font-weight:600}
+button.secondary{background:#eee;color:#222}button.danger{background:#eee;color:#a33}
+.check{display:flex;align-items:center;gap:8px;margin:8px 0}.check input{width:auto}
+.range{display:grid;grid-template-columns:1fr 48px;gap:8px;align-items:center}.num{text-align:center;font-weight:700}
+.tip{background:#f7f7f5;border-radius:12px;padding:11px;font-size:13px;line-height:1.6;color:#555}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.stat{background:#f7f7f5;border-radius:12px;padding:12px}.stat b{display:block;font-size:20px;margin-top:4px}
+table{width:100%;border-collapse:collapse;font-size:12px}th,td{padding:8px 5px;border-bottom:1px solid #eee;text-align:left;white-space:nowrap}
+.small{font-size:12px;color:#777;line-height:1.5}.sticky{position:sticky;bottom:12px}.saved{color:#287a45;font-size:13px;display:none}
+@media(max-width:430px){.grid{grid-template-columns:1fr}.stats{grid-template-columns:1fr 1fr 1fr}h1{font-size:25px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1>体态训练打卡 Pro</h1>
+<div class="sub">RDL × 脚跟点地死虫 × 足部/小腿状态 · 用趋势而不是单日数字判断变化</div>
+
+<div class="card">
+<h2>今日训练</h2>
+<div class="check"><input id="rdl" type="checkbox"><span>RDL 完成</span></div>
+<div class="grid">
+<div><label>RDL 重量（kg）</label><input id="rdlw" type="number" step="0.5" min="0"></div>
+<div><label>RDL 组数 × 次数</label><input id="rdlset" placeholder="如 3×10"></div>
+</div>
+<div class="check"><input id="dead" type="checkbox"><span>脚跟点地死虫完成</span></div>
+<div><label>死虫是否出现腰部拱起</label><select id="arch"><option>无</option><option>偶尔</option><option>明显</option></select></div>
+<div style="margin-top:10px"><label>RDL 主要感觉</label><select id="feel"><option>臀部</option><option>大腿后侧</option><option>臀+大腿后侧</option><option>下背</option><option>小腿</option><option>其他</option></select></div>
+</div>
+
+<div class="card">
+<h2>小腿与活动</h2>
+<div class="grid">
+<div><label>晨起小腿围（cm）</label><input id="cm" type="number" step="0.1"></div>
+<div><label>下午/晚上小腿围（cm）</label><input id="ce" type="number" step="0.1"></div>
+<div><label>今日体重（kg，可不填）</label><input id="wt" type="number" step="0.1"></div>
+<div><label>步数</label><input id="steps" type="number" min="0"></div>
+</div>
+<div style="margin-top:10px"><label>小腿紧硬程度 0–10</label><div class="range"><input id="tight" type="range" min="0" max="10" value="0" oninput="tightv.textContent=this.value"><span class="num" id="tightv">0</span></div></div>
+<div><label>肿胀感 0–10</label><div class="range"><input id="sw" type="range" min="0" max="10" value="0" oninput="swv.textContent=this.value"><span class="num" id="swv">0</span></div></div>
+<div><label>腰/膝不适 0–10</label><div class="range"><input id="pain" type="range" min="0" max="10" value="0" oninput="painv.textContent=this.value"><span class="num" id="painv">0</span></div></div>
+<div style="margin-top:10px"><label>训练后小腿</label><select id="post"><option>更放松</option><option>差不多</option><option>更紧</option><option>明显肿胀</option></select></div>
+</div>
+
+<div class="card">
+<h2>恢复与备注</h2>
+<div class="grid"><div><label>睡眠（小时）</label><input id="sleep" type="number" step="0.1"></div><div><label>日期</label><input id="date" type="date"></div></div>
+<div style="margin-top:10px"><label>备注</label><textarea id="note" placeholder="例如：今天走路较多；RDL感觉很好；下午小腿明显硬……"></textarea></div>
+</div>
+
+<div class="card sticky">
+<div class="row"><button onclick="save()">保存今日记录</button><button class="secondary" onclick="exportData()">导出备份</button><button class="secondary" onclick="importData()">导入备份</button></div>
+<div class="saved" id="saved">✓ 已保存到本机</div>
+<input id="file" type="file" accept=".json" style="display:none" onchange="doImport(event)">
+</div>
+
+<div class="card">
+<h2>最近记录</h2>
+<div class="stats"><div class="stat">连续记录<b id="streak">0天</b></div><div class="stat">平均步数<b id="avg">—</b></div><div class="stat">晚间-晨间<b id="diff">—</b></div></div>
+<div style="overflow:auto;margin-top:12px"><table><thead><tr><th>日期</th><th>晨围</th><th>晚围</th><th>步数</th><th>紧硬</th><th>肿胀</th><th>RDL</th></tr></thead><tbody id="tbody"></tbody></table></div>
+</div>
+
+<div class="card">
+<h2>走路提醒</h2>
+<div class="tip">脚跟自然落地即可，不需要故意重踩；让脚底“三点支撑”（脚跟、大拇趾根、小拇趾根）逐渐承重。膝盖保持弹性，不要锁死；推蹬时让大拇趾根参与，而不是刻意用小腿踮起。</div>
+</div>
+<p class="small">数据只保存在本机浏览器。建议每 1–2 周导出一次 JSON 备份。之后把备份文件发给我，我可以按趋势帮你决定是否增加、减少或调整训练量。</p>
+</div>
+
+<script>
+const KEY="posture_pro_v2";
+const ids=["rdl","rdlw","rdlset","dead","arch","feel","cm","ce","wt","steps","tight","sw","pain","post","sleep","date","note"];
+let data=JSON.parse(localStorage.getItem(KEY)||"[]");
+date.value=new Date().toISOString().slice(0,10);
+function val(id){let e=document.getElementById(id);return e.type==="checkbox"?e.checked:e.value}
+function save(){
+ let o={};ids.forEach(id=>o[id]=val(id));o.savedAt=new Date().toISOString();
+ data=data.filter(x=>x.date!==o.date);data.push(o);data.sort((a,b)=>a.date.localeCompare(b.date));
+ localStorage.setItem(KEY,JSON.stringify(data));saved.style.display="block";setTimeout(()=>saved.style.display="none",1800);render();
+}
+function render(){
+ tbody.innerHTML=data.slice(-14).reverse().map(x=>`<tr><td>${x.date}</td><td>${x.cm||"—"}</td><td>${x.ce||"—"}</td><td>${x.steps||"—"}</td><td>${x.tight??"—"}</td><td>${x.sw??"—"}</td><td>${x.rdl?"✓":"—"}</td></tr>`).join("");
+ let last=data.slice(-7), nums=last.map(x=>+x.steps).filter(Boolean);avg.textContent=nums.length?Math.round(nums.reduce((a,b)=>a+b,0)/nums.length):"—";
+ let dif=last.map(x=>(+x.ce&&+x.cm)?(+x.ce-+x.cm):null).filter(x=>x!==null);diff.textContent=dif.length?(dif.reduce((a,b)=>a+b,0)/dif.length).toFixed(1)+" cm":"—";
+ let s=0;for(let i=data.length-1;i>=0;i--){let d=new Date(data[i].date),prev=i?new Date(data[i-1].date):null;if(i===data.length-1||Math.round((new Date(data[i+1].date)-d)/86400000)===1)s++;else break}streak.textContent=s+"天";
+}
+function exportData(){let b=new Blob([JSON.stringify(data,null,2)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(b);a.download="体态训练打卡备份.json";a.click();URL.revokeObjectURL(a.href)}
+function importData(){file.click()}
+function doImport(e){let f=e.target.files[0];if(!f)return;let r=new FileReader();r.onload=()=>{try{data=JSON.parse(r.result);localStorage.setItem(KEY,JSON.stringify(data));render();alert("导入成功");}catch{alert("备份文件格式不正确")}};r.readAsText(f)}
+render();
+</script>
+</body></html>
